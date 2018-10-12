@@ -17,6 +17,8 @@ import com.mapbox.mapboxsdk.log.Logger;
 import com.mapbox.mapboxsdk.maps.TelemetryDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineGeometryRegionDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
+import com.mapbox.mapboxsdk.offline.OfflineRegionError;
+import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
 import java.lang.reflect.Field;
@@ -116,22 +118,84 @@ public class TelemetryImpl implements TelemetryDefinition {
   }
 
   @Override
-  public void onCreateOfflineRegion(OfflineRegionDefinition offlineDefinition) {
+  public void onOfflineDownloadStart(@NonNull OfflineRegionDefinition offlineDefinition) {
     MapEventFactory mapEventFactory = new MapEventFactory();
 
-    Event mapOfflineEvent;
     if (offlineDefinition instanceof OfflineTilePyramidRegionDefinition) {
       OfflineTilePyramidRegionDefinition tileDefinition =
         (OfflineTilePyramidRegionDefinition)offlineDefinition;
-      mapOfflineEvent = mapEventFactory.buildMapOfflineEvent(
-        tileDefinition.getMinZoom(), tileDefinition.getMaxZoom(), "bounds",
-        new String[]{tileDefinition.getStyleURL()});
+      telemetry.push(mapEventFactory.createOfflineDownloadStartEvent(
+        "tileRegion",
+        tileDefinition.getMinZoom(), tileDefinition.getMaxZoom(),
+        tileDefinition.getStyleURL()));
+
     } else {
       OfflineGeometryRegionDefinition geometryDefinition =
         (OfflineGeometryRegionDefinition) offlineDefinition;
-      mapOfflineEvent = mapEventFactory.buildMapOfflineEvent(
-        geometryDefinition.getMinZoom(), geometryDefinition.getMaxZoom(), geometryDefinition.getGeometry().type(),
-        new String[]{geometryDefinition.getStyleURL()});
+      telemetry.push(mapEventFactory.createOfflineDownloadStartEvent(
+        geometryDefinition.getGeometry().type(),
+        geometryDefinition.getMinZoom(), geometryDefinition.getMaxZoom(),
+        geometryDefinition.getStyleURL()));
+    }
+  }
+
+  @Override
+  public void onOfflineDownloadEndSuccess(@NonNull OfflineRegionDefinition offlineDefinition,
+                                          @NonNull OfflineRegionStatus status) {
+
+    if (status.isComplete()) {
+      if (offlineDefinition instanceof OfflineTilePyramidRegionDefinition) {
+        OfflineTilePyramidRegionDefinition tileDefinition =
+                (OfflineTilePyramidRegionDefinition) offlineDefinition;
+        telemetry.push(new MapEventFactory().createOfflineDownloadCompleteEvent(
+                "tileregion",
+                tileDefinition.getMinZoom(),
+                tileDefinition.getMaxZoom(),
+                tileDefinition.getStyleURL(),
+                status.getCompletedResourceSize(),
+                status.getCompletedTileCount(),
+                "success"));
+
+      } else if (offlineDefinition instanceof OfflineGeometryRegionDefinition) {
+        OfflineGeometryRegionDefinition geometryDefinition =
+                (OfflineGeometryRegionDefinition) offlineDefinition;
+        telemetry.push(new MapEventFactory().createOfflineDownloadCompleteEvent(
+                "shaperegion",
+                geometryDefinition.getMinZoom(),
+                geometryDefinition.getMaxZoom(),
+                geometryDefinition.getStyleURL(),
+                status.getCompletedResourceSize(),
+                status.getCompletedTileCount(),
+                "success"));
+      }
+    }
+  }
+
+  @Override
+  public void onOfflineDownloadEndFailure(@NonNull OfflineRegionDefinition offlineDefinition,
+                                          @NonNull OfflineRegionError error) {
+
+    if (offlineDefinition instanceof OfflineTilePyramidRegionDefinition) {
+      OfflineTilePyramidRegionDefinition tileDefinition =
+              (OfflineTilePyramidRegionDefinition) offlineDefinition;
+      telemetry.push(new MapEventFactory().createOfflineDownloadCompleteEvent(
+              "tileregion",
+              tileDefinition.getMinZoom(),
+              tileDefinition.getMaxZoom(),
+              tileDefinition.getStyleURL(),
+              0L, 0L,
+              "failure"));
+
+    } else if (offlineDefinition instanceof OfflineGeometryRegionDefinition) {
+      OfflineGeometryRegionDefinition geometryDefinition =
+              (OfflineGeometryRegionDefinition) offlineDefinition;
+      telemetry.push(new MapEventFactory().createOfflineDownloadCompleteEvent(
+              "shaperegion",
+              geometryDefinition.getMinZoom(),
+              geometryDefinition.getMaxZoom(),
+              geometryDefinition.getStyleURL(),
+              0L, 0L,
+              "failure"));
     }
   }
 

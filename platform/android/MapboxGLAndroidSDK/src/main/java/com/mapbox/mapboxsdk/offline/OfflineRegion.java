@@ -6,8 +6,11 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
 import com.mapbox.mapboxsdk.LibraryLoader;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.maps.TelemetryDefinition;
 import com.mapbox.mapboxsdk.storage.FileSource;
 
 import java.lang.annotation.Retention;
@@ -262,6 +265,26 @@ public class OfflineRegion {
               if (observer != null) {
                 observer.onStatusChanged(status);
               }
+
+              Log.d(">>>>>", " STATUS CHANGED: state=" +status.getDownloadState()+
+              " completedResouceSize=" +status.getCompletedResourceSize() +
+                      " completedResourceCOunt=" +status.getCompletedResourceCount() +
+              " requiredResourceCount=" +status.getRequiredResourceCount());
+
+              if (status.getDownloadState() == STATE_ACTIVE &&
+                      status.getCompletedResourceSize() == 0) {
+                TelemetryDefinition telemetry = Mapbox.getTelemetry();
+                if (telemetry != null) {
+                  telemetry.onOfflineDownloadStart(definition);
+                }
+                Log.d(">>>>>", ">>>>>>> STARTED !!!!");
+              } else if (status.isComplete()) {
+                TelemetryDefinition telemetry = Mapbox.getTelemetry();
+                if (telemetry != null) {
+                  telemetry.onOfflineDownloadEndSuccess(definition, status);
+                }
+                Log.d(">>>>>", ">>>>>>> END - SUCCESS !!!!");
+              }
             }
           });
         }
@@ -275,6 +298,10 @@ public class OfflineRegion {
             public void run() {
               if (observer != null) {
                 observer.onError(error);
+              }
+              TelemetryDefinition telemetry = Mapbox.getTelemetry();
+              if (telemetry != null) {
+                telemetry.onOfflineDownloadEndFailure(definition, error);
               }
             }
           });
