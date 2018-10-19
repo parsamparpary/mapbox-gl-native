@@ -13,8 +13,8 @@ public class MapViewPager extends ViewPager {
     super(context, attrs);
   }
 
-  @Override
-  protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
-    return v instanceof SurfaceView || v instanceof PagerTabStrip || (super.canScroll(v, checkV, dx, x, y));
-  }
+//  @Override
+//  protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
+//    return v instanceof SurfaceView || v instanceof PagerTabStrip || (super.canScroll(v, checkV, dx, x, y));
+//  }
 }
