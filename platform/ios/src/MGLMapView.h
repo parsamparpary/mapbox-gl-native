@@ -130,8 +130,9 @@ FOUNDATION_EXTERN MGL_EXPORT MGLExceptionName const MGLResourceNotFoundException
  your Mapbox account. They also deter other developers from using your styles
  without your permission.
  
- Because `MGLMapView` loads asynchronously, sever delegate methods are available
- for receiving map-related updates. Information on these methods can be found in
+ Because `MGLMapView` loads asynchronously, several delegate methods are available
+ for receiving map-related updates. These methods can be ensure that certain operations
+ have completed before taking any action. Information on these methods can be found in
 `MGLMapViewDelegate` protocol documentation.
 
  Adding your own gesture recognizer to `MGLMapView` will block the corresponding
