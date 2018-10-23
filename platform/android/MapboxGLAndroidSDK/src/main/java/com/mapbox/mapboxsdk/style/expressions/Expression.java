@@ -3246,10 +3246,10 @@ public class Expression {
    *     format(
    *       formatEntry(
    *         get("header_property"),
-   *         fontScale(2.0),
-   *         textFont(new String[] {"DIN Offc Pro Regular", "Arial Unicode MS Regular"})
+   *         formatFontScale(2.0),
+   *         formatTextFont(new String[] {"DIN Offc Pro Regular", "Arial Unicode MS Regular"})
    *       ),
-   *       formatEntry(concat(literal("\n"), get("description_property")), fontScale(1.5)),
+   *       formatEntry(concat(literal("\n"), get("description_property")), formatFontScale(1.5)),
    * }
    * </pre>
    *
@@ -4375,7 +4375,7 @@ public class Expression {
      * @return format option
      */
     @NonNull
-    public static FormatOption fontScale(@NonNull Expression expression) {
+    public static FormatOption formatFontScale(@NonNull Expression expression) {
       return new FormatOption("font-scale", expression);
     }
 
@@ -4389,7 +4389,7 @@ public class Expression {
      * @return format option
      */
     @NonNull
-    public static FormatOption fontScale(double scale) {
+    public static FormatOption formatFontScale(double scale) {
       return new FormatOption("font-scale", literal(scale));
     }
 
@@ -4405,7 +4405,7 @@ public class Expression {
      * @return format option
      */
     @NonNull
-    public static FormatOption textFont(@NonNull Expression expression) {
+    public static FormatOption formatTextFont(@NonNull Expression expression) {
       return new FormatOption("text-font", expression);
     }
 
@@ -4421,7 +4421,7 @@ public class Expression {
      * @return format option
      */
     @NonNull
-    public static FormatOption textFont(@NonNull String[] fontStack) {
+    public static FormatOption formatTextFont(@NonNull String[] fontStack) {
       return new FormatOption("text-font", literal(fontStack));
     }
   }
