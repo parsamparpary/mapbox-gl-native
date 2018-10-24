@@ -1,6 +1,9 @@
 #include <mbgl/util/utf.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 #include <boost/locale/encoding_utf.hpp>
+#pragma GCC diagnostic pop
 
 namespace mbgl {
 namespace util {
